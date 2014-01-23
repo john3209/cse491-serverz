@@ -25,8 +25,13 @@ def main():
 
 def handle_connection(conn):
     request = conn.recv(1000)
+    # ^^ @comment - might fix the index out of bounds error by checking 
+    #               to see if this variable is valid
+    # ex: if request:
+    #         do stuff..
     method = request.split('\n')[0].split(' ')[0]
     path = request.split('\n')[0].split(' ')[1]
+    #               ^^ @comment - just a note: could use splitlines() too
 
     # Send intial line and headers.
     conn.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
