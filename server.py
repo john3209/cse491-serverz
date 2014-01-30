@@ -2,6 +2,7 @@
 import random
 import socket
 import time
+import urlparse
 
 def main():
     s = socket.socket()	# Create a socket object
@@ -25,25 +26,36 @@ def main():
 
 def handle_connection(conn):
     request = conn.recv(1000)
-    If not request: # Avoids indexing error.
+    if not request: # Avoids indexing error.
+        conn.close()
         return
+    print request
+
     method = request.splitlines()[0].split(' ')[0]
-    path = request.splitlines()[0].split(' ')[1]
+    url = urlparse.urlparse(request.splitlines()[0].split(' ')[1])
 
     # Send intial line and headers.
     conn.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
 
     # Send the appropriate payload.
-    if method == 'POST':
+    if method == 'POST' and url.path != '/submit-post':
         handle_post(conn)
-    elif path == '/':
+    elif url.path == '/':
         handle_default(conn)
-    elif path == '/content':
+    elif url.path == '/content':
         handle_content(conn)
-    elif path == '/file':
+    elif url.path == '/file':
         handle_file(conn)
-    elif path == '/image':
+    elif url.path == '/image':
         handle_image(conn)
+    elif url.path == '/form':
+        handle_form_get(conn)
+    elif url.path == '/form-post':
+        handle_form_post(conn)
+    elif url.path == '/submit':
+        handle_submit(conn, url.query)
+    elif url.path == '/submit-post':
+        handle_submit(conn, request.splitlines()[-1])
 
     conn.close()
     return
@@ -53,6 +65,7 @@ def handle_default(conn):
     conn.send('<a href="/content">Content</a><br />')
     conn.send('<a href="/file">File</a><br />')
     conn.send('<a href="/image">Image</a><br />')
+    conn.send('<a href="/form">Form</a>')
     return
 
 def handle_content(conn):
@@ -69,6 +82,30 @@ def handle_image(conn):
 
 def handle_post(conn):
     conn.send('<h1>Hello World!</h1>')
+    return
+
+def handle_form_get(conn):
+    conn.send("<form action='/submit' method='GET'>")
+    conn.send("First Name: <input type='text' name='firstname'><br>")
+    conn.send("Last Name: <input type-'text' name='lastname'><br>")
+    conn.send("<input type='submit' value='Submit'>")
+    conn.send("</form>")
+    return
+
+def handle_form_post(conn):
+    conn.send("<form action='/submit-post' method='POST' ")
+    conn.send("enctype='application/x-www-form-urlencoded'>")
+    conn.send("First Name: <input type='text' name='firstname'><br>")
+    conn.send("Last Name: <input type-'text' name='lastname'><br>")
+    conn.send("<input type='submit' value='Submit'>")
+    conn.send("</form>")
+    return
+
+def handle_submit(conn, query):
+    queryDict = urlparse.parse_qs(query)
+    firstname = queryDict['firstname'][0]
+    lastname = queryDict['lastname'][0]
+    conn.send("<h1>Hello Mr. {0} {1}.</h1>".format(firstname, lastname))
     return
 
 
