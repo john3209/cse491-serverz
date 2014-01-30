@@ -18,7 +18,11 @@
 
  * Made different responses for POST requests and different paths.
 
- 2014-01-23 Justin Fila <filajust@msu.edu>
+2014-01-23 Justin Fila <filajust@msu.edu>
 
  * Looks great! I found one index out of bounds error, left a comment where
  * I think it can be fixed
+
+2014-01-29 Jeff Johnson <john3209@msu.edu>
+
+ * Fixed indexing error that would arise when using Mozilla.
