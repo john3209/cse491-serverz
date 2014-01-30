@@ -5,3 +5,15 @@
 2014-01-15 Jeff Johnson <john3209@msu.edu>
 
  * Made changes Homework 1 entailed us to do. (Send HTTP 1.0 Response)
+
+2014-01-22 Jeff Johnson <john3209@msu.edu>
+
+ * Made fixes to Homework 1. - Updated \n to \r\n
+
+2014-01-22 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 2 had us do. This includes:
+
+ * Made server.py testable and added tests.
+
+ * Made different responses for POST requests and different paths.
