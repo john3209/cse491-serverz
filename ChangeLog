@@ -26,3 +26,9 @@
 2014-01-29 Jeff Johnson <john3209@msu.edu>
 
  * Fixed indexing error that would arise when using Mozilla.
+
+2014-01-30 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 3 had us do. This includes:
+
+ * Handling form submissions using both GET and POST.
