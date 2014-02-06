@@ -3,6 +3,9 @@ import random
 import socket
 import time
 import urlparse
+import cgi
+import StringIO
+import jinja2
 
 def main():
     s = socket.socket()	# Create a socket object
@@ -25,88 +28,141 @@ def main():
     return
 
 def handle_connection(conn):
-    request = conn.recv(1000)
+    request = ''
+    while '\r\n\r\n' not in request:
+        request += conn.recv(1)
+
     if not request: # Avoids indexing error.
         conn.close()
         return
-    print request
 
     method = request.splitlines()[0].split(' ')[0]
     url = urlparse.urlparse(request.splitlines()[0].split(' ')[1])
 
     # Send intial line and headers.
-    conn.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
+    initResp = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
+
+    # Sets up jinja2.
+    loader = jinja2.FileSystemLoader('./templates')
+    jenv = jinja2.Environment(loader=loader)
 
     # Send the appropriate payload.
-    if method == 'POST' and url.path != '/submit-post':
-        handle_post(conn)
+    if method == 'POST':
+        conn.send(initResp)
+        headers, message = get_headers_and_message(conn, request)
+
+        if url.path == '/submit-post-app':
+            # With this enctype, message is treated same as GET.
+            handle_submit(conn, message, jenv)
+        elif url.path == '/submit-post-multi':
+            handle_submit_multi(conn, headers, message, jenv)
+        else:
+            handle_post(conn, jenv)
     elif url.path == '/':
-        handle_default(conn)
+        conn.send(initResp)
+        handle_default(conn, jenv)
     elif url.path == '/content':
-        handle_content(conn)
+        conn.send(initResp)
+        handle_content(conn, jenv)
     elif url.path == '/file':
-        handle_file(conn)
+        conn.send(initResp)
+        handle_file(conn, jenv)
     elif url.path == '/image':
-        handle_image(conn)
-    elif url.path == '/form':
-        handle_form_get(conn)
-    elif url.path == '/form-post':
-        handle_form_post(conn)
-    elif url.path == '/submit':
-        handle_submit(conn, url.query)
-    elif url.path == '/submit-post':
-        handle_submit(conn, request.splitlines()[-1])
+        conn.send(initResp)
+        handle_image(conn, jenv)
+    elif url.path == '/form-get':
+        conn.send(initResp)
+        handle_form_get(conn, jenv)
+    elif url.path == '/form-post-app':
+        conn.send(initResp)
+        handle_form_post_app(conn, jenv)
+    elif url.path == '/form-post-multi':
+        conn.send(initResp)
+        handle_form_post_multi(conn, jenv)
+    elif url.path == '/submit-get':
+        conn.send(initResp)
+        handle_submit(conn, url.query, jenv)
+    else:
+        conn.send('HTTP/1.0 404 Not Found\r\n\r\n')
+        conn.send(jenv.get_template('404.html').render())
 
     conn.close()
     return
 
-def handle_default(conn):
-    conn.send('<h1>Welcome to john3209\'s Web Server!</h1>')
-    conn.send('<a href="/content">Content</a><br />')
-    conn.send('<a href="/file">File</a><br />')
-    conn.send('<a href="/image">Image</a><br />')
-    conn.send('<a href="/form">Form</a>')
+def handle_default(conn, jenv):
+    conn.send(jenv.get_template('Default.html').render())
     return
 
-def handle_content(conn):
-    conn.send('<h1>This is john3209\'s content!</h1>')
+def handle_content(conn, jenv):
+    conn.send(jenv.get_template('Content.html').render())
     return
 
-def handle_file(conn):
-    conn.send('<h1>This is john3209\'s file!</h1>')
+def handle_file(conn, jenv):
+    conn.send(jenv.get_template('File.html').render())
     return
 
-def handle_image(conn):
-    conn.send('<h1>This is john3209\'s image!</h1>')
+def handle_image(conn, jenv):
+    conn.send(jenv.get_template('Image.html').render())
     return
 
-def handle_post(conn):
-    conn.send('<h1>Hello World!</h1>')
+def handle_post(conn, jenv):
+    conn.send(jenv.get_template('PostDefault.html').render())
     return
 
-def handle_form_get(conn):
-    conn.send("<form action='/submit' method='GET'>")
-    conn.send("First Name: <input type='text' name='firstname'><br>")
-    conn.send("Last Name: <input type-'text' name='lastname'><br>")
-    conn.send("<input type='submit' value='Submit'>")
-    conn.send("</form>")
+def handle_form_get(conn, jenv):
+    conn.send(jenv.get_template('FormGet.html').render())
     return
 
-def handle_form_post(conn):
-    conn.send("<form action='/submit-post' method='POST' ")
-    conn.send("enctype='application/x-www-form-urlencoded'>")
-    conn.send("First Name: <input type='text' name='firstname'><br>")
-    conn.send("Last Name: <input type-'text' name='lastname'><br>")
-    conn.send("<input type='submit' value='Submit'>")
-    conn.send("</form>")
+def handle_form_post_app(conn, jenv):
+    conn.send(jenv.get_template('FormPostApp.html').render())
     return
 
-def handle_submit(conn, query):
+def handle_form_post_multi(conn, jenv):
+    conn.send(jenv.get_template('FormPostMulti.html').render())
+    return
+
+def handle_submit(conn, query, jenv):
     queryDict = urlparse.parse_qs(query)
-    firstname = queryDict['firstname'][0]
-    lastname = queryDict['lastname'][0]
-    conn.send("<h1>Hello Mr. {0} {1}.</h1>".format(firstname, lastname))
+    vars = dict(firstname=queryDict['firstname'][0],
+                lastname=queryDict['lastname'][0])
+
+    conn.send(jenv.get_template('Submit.html').render(vars))
     return
+
+def handle_submit_multi(conn, headers, message, jenv):
+    # Creates POST content string.
+    content = StringIO.StringIO(message)
+
+    # Creates environment dictionary.
+    env = {'REQUEST_METHOD':'POST'}
+
+    # Creates Field Storage object that contains values for form fields.
+    form = cgi.FieldStorage(fp=content, headers=headers, environ=env)
+
+    vars = dict(firstname=form.getvalue('firstname'),
+                lastname=form.getvalue('lastname'))
+    conn.send(jenv.get_template('Submit.html').render(vars))
+
+    content.close() # Closes StringIO object.
+    return
+
+def get_headers_and_message(conn, request):
+    # Creates headers dictionary.
+    headersDict = {}
+    headers = request.splitlines()[1:] # Gets header lines.
+    for header in headers:
+        try:
+            k, v = header.split(': ', 1)
+        except:
+            continue
+        headersDict[k.lower()] = v
+
+    # Extracts message from request.
+    message = ''
+    while len(message) < int(headersDict['content-length']):
+        message += conn.recv(1)
+
+    return headersDict, message
 
 
 if __name__ == '__main__':
