@@ -4,8 +4,8 @@ import requests
 
 url = sys.argv[1]
 
-payload = { 'key' : 'value' }
-r = requests.post(url, data=payload)
+fakeFile = { 'firstname' : 'Jeff', 'lastname' : 'Johnson' }
+r = requests.post(url, files=fakeFile)
 
 print r.status_code
 print r.text
