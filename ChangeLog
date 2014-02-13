@@ -32,3 +32,25 @@
  * Made changes Homework 3 had us do. This includes:
 
  * Handling form submissions using both GET and POST.
+
+2014-02-06 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 4 has us do. This includes:
+
+ * Handling mutipart/form-data content types.
+
+ * Make arbitrary size requests.
+
+ * Added HTML templating.
+
+ * Added 404 Error catching.
+
+2014-02-12 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 5 had us do. This includes:
+
+ * Made app WSGI-compatible.
+
+ * Made server WSGI-compatible.
+
+ * Added template inheritance.
