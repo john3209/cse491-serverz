@@ -5,140 +5,99 @@ import cgi
 import StringIO
 import jinja2
 
-def handle_connection(conn):
-    request = ''
-    while '\r\n\r\n' not in request:
-        request += conn.recv(1)
+def make_app():
+    return simple_app
 
-    if not request: # Avoids indexing error.
-        conn.close()
-        return
+def simple_app(environ, start_response):
+    return handle_request(environ, start_response)
 
-    method = request.splitlines()[0].split(' ')[0]
-    url = urlparse.urlparse(request.splitlines()[0].split(' ')[1])
+def handle_request(environ, start_response):
+    method = environ['REQUEST_METHOD']
+    path = environ['PATH_INFO']
 
-    # Send intial line and headers.
-    initResp = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
+    status = '200 OK'
+    headers = [('Content-type','text/html')]
 
-    # Sets up jinja2.
+    # Sets up jinja2 to help with html templates.
     loader = jinja2.FileSystemLoader('./templates')
     jenv = jinja2.Environment(loader=loader)
 
-    # Send the appropriate payload.
+    # Creates the appropriate message.
     if method == 'POST':
-        conn.send(initResp)
-        headers, message = get_headers_and_message(conn, request)
-
-        if url.path == '/submit-post-app':
-            # With this enctype, message is treated same as GET.
-            handle_submit(conn, message, jenv)
-        elif url.path == '/submit-post-multi':
-            handle_submit_multi(conn, headers, message, jenv)
+        if path == '/submit-post-app' or path == '/submit-post-multi':
+            message = create_submit_post(environ, jenv)
         else:
-            handle_post(conn, jenv)
-    elif url.path == '/':
-        conn.send(initResp)
-        handle_default(conn, jenv)
-    elif url.path == '/content':
-        conn.send(initResp)
-        handle_content(conn, jenv)
-    elif url.path == '/file':
-        conn.send(initResp)
-        handle_file(conn, jenv)
-    elif url.path == '/image':
-        conn.send(initResp)
-        handle_image(conn, jenv)
-    elif url.path == '/form-get':
-        conn.send(initResp)
-        handle_form_get(conn, jenv)
-    elif url.path == '/form-post-app':
-        conn.send(initResp)
-        handle_form_post_app(conn, jenv)
-    elif url.path == '/form-post-multi':
-        conn.send(initResp)
-        handle_form_post_multi(conn, jenv)
-    elif url.path == '/submit-get':
-        conn.send(initResp)
-        handle_submit(conn, url.query, jenv)
+            message = create_post(jenv)
     else:
-        conn.send('HTTP/1.0 404 Not Found\r\n\r\n')
-        conn.send(jenv.get_template('404.html').render())
+        if path == '/':
+            message = create_default(jenv)
+        elif path == '/content':
+            message = create_content(jenv)
+        elif path == '/file':
+            message = create_file(jenv)
+        elif path == '/image':
+            message = create_image(jenv)
+        elif path == '/form-get':
+            message = create_form_get(jenv)
+        elif path == '/form-post-app':
+            message = create_form_app(jenv)
+        elif path == '/form-post-multi':
+            message = create_form_multi(jenv)
+        elif path == '/submit-get':
+            message = create_submit(environ, jenv)
+        else:
+            status = '404 Not Found'
+            message = create_404_error(jenv)
 
-    conn.close()
-    return
+    start_response(status, headers) # Starts response by sending status/headers.
+    return message.encode('latin-1', 'replace') # Returns rest of the response.
 
-def handle_default(conn, jenv):
-    conn.send(jenv.get_template('Default.html').render())
-    return
+def create_default(jenv):
+    return jenv.get_template('Index.html').render()
 
-def handle_content(conn, jenv):
-    conn.send(jenv.get_template('Content.html').render())
-    return
+def create_content(jenv):
+    return jenv.get_template('Content.html').render()
 
-def handle_file(conn, jenv):
-    conn.send(jenv.get_template('File.html').render())
-    return
+def create_file(jenv):
+    return jenv.get_template('File.html').render()
 
-def handle_image(conn, jenv):
-    conn.send(jenv.get_template('Image.html').render())
-    return
+def create_image(jenv):
+    return jenv.get_template('Image.html').render()
 
-def handle_post(conn, jenv):
-    conn.send(jenv.get_template('PostDefault.html').render())
-    return
+def create_post(jenv):
+    return jenv.get_template('PostDefault.html').render()
 
-def handle_form_get(conn, jenv):
-    conn.send(jenv.get_template('FormGet.html').render())
-    return
+def create_form_get(jenv):
+    return jenv.get_template('FormGet.html').render()
 
-def handle_form_post_app(conn, jenv):
-    conn.send(jenv.get_template('FormPostApp.html').render())
-    return
+def create_form_app(jenv):
+    return jenv.get_template('FormPostApp.html').render()
 
-def handle_form_post_multi(conn, jenv):
-    conn.send(jenv.get_template('FormPostMulti.html').render())
-    return
+def create_form_multi(jenv):
+    return jenv.get_template('FormPostMulti.html').render()
 
-def handle_submit(conn, query, jenv):
-    queryDict = urlparse.parse_qs(query)
+def create_submit(env, jenv):
+    # Parses through GET query component of URL.
+    queryDict = urlparse.parse_qs(env['QUERY_STRING'])
+
     vars = dict(firstname=queryDict['firstname'][0],
                 lastname=queryDict['lastname'][0])
 
-    conn.send(jenv.get_template('Submit.html').render(vars))
-    return
+    return jenv.get_template('Submit.html').render(vars)
 
-def handle_submit_multi(conn, headers, message, jenv):
-    # Creates POST content string.
-    content = StringIO.StringIO(message)
-
-    # Creates environment dictionary.
-    env = {'REQUEST_METHOD':'POST'}
-
-    # Creates Field Storage object that contains values for form fields.
-    form = cgi.FieldStorage(fp=content, headers=headers, environ=env)
+def create_submit_post(env, jenv):
+    # Holds submitted form data.
+    # FieldStorage is case-sensitive when looking at content-type
+    # so headers is specified with additional key in lower-case too.
+    form = cgi.FieldStorage(fp=StringIO.StringIO(env['wsgi.input']),
+                            headers={'content-type' : env['CONTENT-TYPE']},
+                            environ=env)
 
     vars = dict(firstname=form.getvalue('firstname'),
                 lastname=form.getvalue('lastname'))
-    conn.send(jenv.get_template('Submit.html').render(vars))
 
-    content.close() # Closes StringIO object.
-    return
+    return jenv.get_template('Submit.html').render(vars)
 
-def get_headers_and_message(conn, request):
-    # Creates headers dictionary.
-    headersDict = {}
-    headers = request.splitlines()[1:] # Gets header lines.
-    for header in headers:
-        try:
-            k, v = header.split(': ', 1)
-        except:
-            continue
-        headersDict[k.lower()] = v
-
-    # Extracts message from request.
-    message = ''
-    while len(message) < int(headersDict['content-length']):
-        message += conn.recv(1)
-
-    return headersDict, message
+def create_404_error(jenv):
+    return jenv.get_template('404.html').render()
 
