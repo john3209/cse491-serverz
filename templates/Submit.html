@@ -1,1 +1,6 @@
-<html><body><h1>Hello Mr. {{ firstname }} {{ lastname }}.</h1></body></html>
+{% extends "Base.html" %}
+
+{% block content %}
+<title>Hello!</title>
+<h1>Hello Mr. {{ firstname }} {{ lastname }}.</h1>
+{% endblock %}
