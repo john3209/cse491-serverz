@@ -54,3 +54,13 @@
  * Made server WSGI-compatible.
 
  * Added template inheritance.
+
+2014-02-23 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 6 has us do. This includes:
+
+ * Adding image/file handling.
+
+ * Made work with Quixote apps.
+
+ * Validated WSGI app.

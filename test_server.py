@@ -64,10 +64,8 @@ def test_handle_connection_file():
     conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
     app = make_app()
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
-                      '<html>\n    <body>\n        \n<title>File</title>\n' + \
-                      '<h1>This is john3209\'s file!</h1>\n\n    </body>\n' + \
-                      '</html>'
+                      'Content-type: text/plain\r\n\r\n' + \
+                      'This is Jeff Johnson\'s text file!\n'
 
     server.handle_connection(conn, app)
 
@@ -77,14 +75,11 @@ def test_handle_connection_image():
     conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
     app = make_app()
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
-                      '<html>\n    <body>\n        \n<title>Image</title>\n' + \
-                      '<h1>This is john3209\'s image!</h1>\n\n    </body>\n' + \
-                      '</html>'
+                      'Content-type: image/jpeg\r\n\r\n'
 
     server.handle_connection(conn, app)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert conn.sent.startswith(expected_return), 'Got: %s' % (repr(conn.sent),)
 
 def test_handle_connection_post():
     fakeRequest = "POST / HTTP/1.0\r\n" + \

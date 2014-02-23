@@ -17,6 +17,7 @@ def handle_request(environ, start_response):
 
     status = '200 OK'
     headers = [('Content-type','text/html')]
+    encode = True
 
     # Sets up jinja2 to help with html templates.
     loader = jinja2.FileSystemLoader('./templates')
@@ -34,9 +35,13 @@ def handle_request(environ, start_response):
         elif path == '/content':
             message = create_content(jenv)
         elif path == '/file':
-            message = create_file(jenv)
+            encode = False
+            headers = [('Content-type', 'text/plain')]
+            message = create_file()
         elif path == '/image':
-            message = create_image(jenv)
+            encode = False
+            headers = [('Content-type', 'image/jpeg')]
+            message = create_image()
         elif path == '/form-get':
             message = create_form_get(jenv)
         elif path == '/form-post-app':
@@ -50,7 +55,11 @@ def handle_request(environ, start_response):
             message = create_404_error(jenv)
 
     start_response(status, headers) # Starts response by sending status/headers.
-    return message.encode('latin-1', 'replace') # Returns rest of the response.
+    # Returns rest of response.
+    if(encode):
+        return [message.encode('latin-1', 'replace')] # Encodes properly.
+    else:
+        return [message] # Don't encode for files though.
 
 def create_default(jenv):
     return jenv.get_template('Index.html').render()
@@ -58,11 +67,11 @@ def create_default(jenv):
 def create_content(jenv):
     return jenv.get_template('Content.html').render()
 
-def create_file(jenv):
-    return jenv.get_template('File.html').render()
+def create_file():
+    return get_file('mytext.txt')
 
-def create_image(jenv):
-    return jenv.get_template('Image.html').render()
+def create_image():
+    return get_file('waldocat.jpg')
 
 def create_post(jenv):
     return jenv.get_template('PostDefault.html').render()
@@ -87,11 +96,7 @@ def create_submit(env, jenv):
 
 def create_submit_post(env, jenv):
     # Holds submitted form data.
-    # FieldStorage is case-sensitive when looking at content-type
-    # so headers is specified with additional key in lower-case too.
-    form = cgi.FieldStorage(fp=StringIO.StringIO(env['wsgi.input']),
-                            headers={'content-type' : env['CONTENT-TYPE']},
-                            environ=env)
+    form = cgi.FieldStorage(fp=env['wsgi.input'], environ=env)
 
     vars = dict(firstname=form.getvalue('firstname'),
                 lastname=form.getvalue('lastname'))
@@ -101,3 +106,8 @@ def create_submit_post(env, jenv):
 def create_404_error(jenv):
     return jenv.get_template('404.html').render()
 
+def get_file(filename):
+    fp = open(filename, 'rb')
+    filedata = fp.read()
+    fp.close()
+    return filedata
