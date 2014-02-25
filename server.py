@@ -1,9 +1,16 @@
 #!/usr/bin/env python
+import sys
 import random
 import socket
 import urlparse
+import StringIO
+import quixote
 
 from app import make_app
+# from quixote.demo import create_publisher
+# from quixote.demo.mini_demo import create_publisher
+# from quixote.demo.altdemo import create_publisher
+# from wsgiref.validate import validator
 
 def main():
     s = socket.socket() # Create a socket object.
@@ -11,7 +18,10 @@ def main():
     port = random.randint(8000, 9999) # Assign random port.
     s.bind((host, port)) # Bind to the port.
 
+    # p = create_publisher()
+    # wsgi_app = quixote.get_wsgi_app()
     wsgi_app = make_app() # Creates WSGI app.
+    # validate_app = validator(wsgi_app)
 
     print 'Starting server on', host, port
     print 'The Web server URL for this would be http://%s:%d/' % (host, port)
@@ -24,6 +34,7 @@ def main():
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
         handle_connection(c, wsgi_app)
+        # handle_connection(c, validate_app)
     return
 
 def handle_connection(conn, wsgi_app):
@@ -58,9 +69,20 @@ def handle_connection(conn, wsgi_app):
     url = urlparse.urlparse(request.splitlines()[0].split(' ')[1])
     environ['PATH_INFO'] = url.path
     environ['QUERY_STRING'] = url.query
-    environ['CONTENT-TYPE'] = headers.get('content-type', '')
-    environ['CONTENT-LENGTH'] = headers.get('content-length', '')
-    environ['wsgi.input'] = message
+    environ['CONTENT_TYPE'] = headers.get('content-type', '')
+    environ['CONTENT_LENGTH'] = headers.get('content-length', '')
+    environ['wsgi.input'] = StringIO.StringIO(message)
+    # Used by Quixote apps.
+    environ['SCRIPT_NAME'] = ''
+    # Used to pass WSGI Validation.
+    environ['SERVER_NAME'] = 'My Server'
+    environ['SERVER_PORT'] = 'My Port'
+    environ['wsgi.version'] = (1, 0)
+    environ['wsgi.errors'] = sys.stderr
+    environ['wsgi.multithread'] = False
+    environ['wsgi.multiprocess'] = False
+    environ['wsgi.run_once'] = False
+    environ['wsgi.url_scheme'] = 'http'
 
     # Declares variables in dictionary so they can be changed by start_response.
     # Python 2.x doesn't support nonlocal keyword.
