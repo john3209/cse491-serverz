@@ -5,6 +5,7 @@ import socket
 import urlparse
 import StringIO
 import quixote
+import imageapp
 
 from app import make_app
 # from quixote.demo import create_publisher
@@ -18,10 +19,12 @@ def main():
     port = random.randint(8000, 9999) # Assign random port.
     s.bind((host, port)) # Bind to the port.
 
-    # p = create_publisher()
-    # wsgi_app = quixote.get_wsgi_app()
+    # imageapp.setup()
     wsgi_app = make_app() # Creates WSGI app.
     # validate_app = validator(wsgi_app)
+    # p = create_publisher()
+    # p = imageapp.create_publisher()
+    # wsgi_app = quixote.get_wsgi_app()
 
     print 'Starting server on', host, port
     print 'The Web server URL for this would be http://%s:%d/' % (host, port)
@@ -83,6 +86,8 @@ def handle_connection(conn, wsgi_app):
     environ['wsgi.multiprocess'] = False
     environ['wsgi.run_once'] = False
     environ['wsgi.url_scheme'] = 'http'
+    # Used to handle cookies.
+    environ['HTTP_COOKIE'] = headers.get('cookie', '')
 
     # Declares variables in dictionary so they can be changed by start_response.
     # Python 2.x doesn't support nonlocal keyword.
