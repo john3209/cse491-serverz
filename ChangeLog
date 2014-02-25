@@ -64,3 +64,15 @@
  * Made work with Quixote apps.
 
  * Validated WSGI app.
+
+2014-02-24 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 7 had us do. This includes:
+
+ * Adding cookie handling.
+
+ * Ensuring WSGI server works with Quixote login app.
+
+ * Ensuring WSGI server works with image app.
+
+ * Updating image app to show latest image on index page.
