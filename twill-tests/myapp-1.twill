@@ -1,0 +1,38 @@
+go /
+code 200
+
+go /content
+code 200
+
+go /file
+code 200
+
+go /form-get
+code 200
+
+go /form-post-app
+code 200
+
+go /form-post-multi
+code 200
+
+go /form-get
+formvalue 1 firstname Jeff
+formvalue 1 lastname Johnson
+submit
+find "Jeff Johnson"
+
+go /form-post-app
+formvalue 1 firstname Jeff
+formvalue 1 lastname Johnson
+submit
+find "Jeff Johnson"
+
+go /form-post-multi
+formvalue 1 firstname Jeff
+formvalue 1 lastname Johnson
+submit
+find "Jeff Johnson"
+
+go /blah
+code 404
