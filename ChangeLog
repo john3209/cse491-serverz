@@ -92,3 +92,18 @@
  * I inserted the CSS stylesheet that I got from the OSWD template as an
    internal stylesheet in base.html. Therefore, every page would inherit
    from that style.
+
+2014-03-27 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 9 had us do. This includes:
+
+ * Integrated quotes and chat apps.
+
+ * Changed quotes homepage and added time to chat messages.
+
+ * FOR MY PROJECT:
+
+ * I implemented the image upload with AJAX and JQuery.
+
+ * I used jquery's ready function and ajax form function to do so. The
+   changes can be seen in upload.html under images/templates.

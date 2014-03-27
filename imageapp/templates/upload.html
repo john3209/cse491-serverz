@@ -3,8 +3,15 @@
 {% block content %}
 Upload a PNG:
 
-<form enctype='multipart/form-data' action='upload_receive' method='POST'>
+<form id='fileform' enctype='multipart/form-data' action='upload_receive' method='POST'>
 Filename: <input type='file' name='file'><p>
 <input type='submit'>
 </form>
+
+<script>
+$(document).ready(function() {
+    $('#fileform').ajaxForm(function(data) {
+        // Form is done uploading once it gets to here.
+        });
+    });
 {% endblock %}
