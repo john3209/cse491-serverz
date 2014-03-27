@@ -76,3 +76,19 @@
  * Ensuring WSGI server works with image app.
 
  * Updating image app to show latest image on index page.
+
+2014-03-20 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 8 had us do. This includes:
+
+ * Implementing command line options.
+
+ * Running/setting up twill tests.
+
+ * FOR MY PROJECT IMPLEMENTATION:
+
+ * I swiped one of the templates from oswd.org and used it in the imageapp.
+
+ * I inserted the CSS stylesheet that I got from the OSWD template as an
+   internal stylesheet in base.html. Therefore, every page would inherit
+   from that style.
