@@ -7,6 +7,8 @@ import StringIO
 import quixote
 import imageapp
 import argparse
+import quotes
+import chat
 
 from app import make_app
 from quixote.demo.altdemo import create_publisher
@@ -17,8 +19,9 @@ from quixote.demo.altdemo import create_publisher
 def main():
     # Parses arguements.
     parser = argparse.ArgumentParser()
-    parser.add_argument('-A', choices=['image','altdemo','myapp'],
-                         default='myapp', help='application to run')
+    parser.add_argument('-A',
+                        choices=['image','altdemo','myapp','quotes','chat'],
+                        default='myapp', help='application to run')
     parser.add_argument('-p', help="port to use", type=int)
     args = parser.parse_args()
 
@@ -39,6 +42,10 @@ def main():
     elif args.A == "altdemo":
         p = quixote.demo.altdemo.create_publisher()
         wsgi_app = quixote.get_wsgi_app()
+    elif args.A == "quotes":
+        wsgi_app = quotes.setup()
+    elif args.A == "chat":
+        wsgi_app = chat.setup()
     else:
         wsgi_app = make_app()
 
