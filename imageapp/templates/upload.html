@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-Upload a PNG:
+Upload a PNG, JPG, or TIFF Image:
 
 <form id='fileform' enctype='multipart/form-data' action='upload_receive' method='POST'>
 Filename: <input type='file' name='file'><p>
@@ -14,4 +14,5 @@ $(document).ready(function() {
         // Form is done uploading once it gets to here.
         });
     });
+</script>
 {% endblock %}
