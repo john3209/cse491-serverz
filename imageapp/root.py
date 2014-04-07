@@ -18,13 +18,23 @@ class RootDirectory(Directory):
     def upload_receive(self):
         request = quixote.get_request()
         print request.form.keys()
-
         the_file = request.form['file']
+
+        # Gets image data.
         print dir(the_file)
         print 'received file with name:', the_file.base_filename
         data = the_file.read(int(1e9))
 
-        image.add_image(data)
+        # Gets image type.
+        imagetype = the_file.orig_filename.rsplit('.', 1)[1].lower()
+        if(imagetype in ['jpg', 'jpeg', 'jpe', 'jfif']):
+            imagetype = 'jpeg'
+        elif(imagetype in ['tif', 'tiff']):
+            imagetype = 'tiff'
+        else:
+            imagetype = 'png'
+
+        image.add_image(data, imagetype)
 
         return quixote.redirect('./')
 
@@ -35,6 +45,17 @@ class RootDirectory(Directory):
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
-        response.set_content_type('image/png')
-        img = image.get_latest_image()
-        return img
+        request = quixote.get_request()
+        index = request.form['special']
+
+        if(index == 'latest'):
+            img = image.get_latest_image()
+        else:
+            img = image.get_image(int(index))
+
+        response.set_content_type('image/{0}'.format(img[1]))
+        return img[0]
+
+    @export(name='image_list')
+    def image_list(self):
+        return html.render('image_list.html', {'imageCount' : image.get_image_count()})

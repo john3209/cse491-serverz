@@ -107,3 +107,27 @@
 
  * I used jquery's ready function and ajax form function to do so. The
    changes can be seen in upload.html under images/templates.
+
+2014-04-03 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 10 had us do. This includes:
+
+ * Implemented two projects.
+
+ * FIRST PROJECT (5 Points):
+
+ * Changed imageapp to support JPEG and TIFF. (#4)
+
+ * I had to keep track of the image type along with the image data in
+   image.py. Using that, I would change the content-type for each image
+   request.
+
+ * SECOND PROJECT (5 Points):
+
+ * Add a URL that provides a list of images, resized to thumbnails. (#5)
+
+ * First I had to create a new template (image_list.html) which included a
+   jinja2 for loop to create the image tags. I also had to add a new function
+   to root.py to handle the new web page request and to pass the image count
+   to render method. Therefore, I had to create a method in image.py to get
+   the image count and add a link to the index.html.
