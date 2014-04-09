@@ -131,3 +131,12 @@
    to root.py to handle the new web page request and to pass the image count
    to render method. Therefore, I had to create a method in image.py to get
    the image count and add a link to the index.html.
+
+2014-04-08 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 11 had us do. This includes:
+
+ * Integrated cookie app and set up its twill test.
+
+ * Stores images in SQL database now. (The app automatically detects if the
+   image table already exists so there is no special first time instructions.
