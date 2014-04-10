@@ -1,7 +1,7 @@
 import sqlite3
 import re
 
-def insert_image(data, imageType):
+def insert_image(data, imageType, name, descrip):
     # Connects to the already existing database.
     db = sqlite3.connect('images.sqlite')
 
@@ -9,6 +9,6 @@ def insert_image(data, imageType):
     db.text_factory = bytes
 
     # Insert!
-    db.execute("INSERT INTO image_store (image,imageType) VALUES (?,?)",(data,imageType,))
+    db.execute("INSERT INTO image_store (image,imageType,name,descrip) VALUES (?,?,?,?)",(data,imageType,name,descrip,))
     db.commit()
     db.close()

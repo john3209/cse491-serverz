@@ -2,8 +2,8 @@ import create
 import insert
 import retrieve
 
-def add_image(data, imagetype):
-    insert.insert_image(data, imagetype)
+def add_image(data, imagetype, name, descrip):
+    insert.insert_image(data, imagetype, name, descrip)
 
 def get_image(num):
     return retrieve.get_image(num)

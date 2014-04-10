@@ -10,12 +10,12 @@ def get_latest_image():
 
     # Get query handle and execute query.
     c = db.cursor()
-    c.execute('SELECT image, imageType FROM image_store ORDER BY i DESC LIMIT 1')
+    c.execute('SELECT image, imageType, name, descrip FROM image_store ORDER BY i DESC LIMIT 1')
 
     # Grab the first result (this will fail if no results!).
-    image, imageType = c.fetchone()
+    image, imageType, name, descrip = c.fetchone()
 
-    return (image, imageType)
+    return (image, imageType, name, descrip)
 
 
 def get_image(index):
@@ -27,12 +27,12 @@ def get_image(index):
 
     # Get query handle and execute query.
     c = db.cursor()
-    c.execute('SELECT image, imageType FROM (SELECT * FROM image_store ORDER BY i DESC LIMIT {0}) reverse ORDER BY i ASC'.format(index + 1))
+    c.execute('SELECT image, imageType, name, descrip FROM (SELECT * FROM image_store ORDER BY i DESC LIMIT {0}) reverse ORDER BY i ASC'.format(index + 1))
 
     # Grab the first result (this will fail if no results!).
-    image, imageType = c.fetchone()
+    image, imageType, name, descrip = c.fetchone()
 
-    return (image, imageType)
+    return (image, imageType, name, descrip)
 
 
 def get_image_count():

@@ -5,7 +5,7 @@ def create_image_table():
     db = sqlite3.connect('images.sqlite')
 
     # Ensures image_store table exists. If already exists, does nothing.
-    db.execute('CREATE TABLE IF NOT EXISTS image_store (i INTEGER PRIMARY KEY, image BLOB, imageType TEXT)');
+    db.execute('CREATE TABLE IF NOT EXISTS image_store (i INTEGER PRIMARY KEY, image BLOB, imageType TEXT, name TEXT, descrip TEXT)');
 
     # Commits transaction and closes connection.
     db.commit()

@@ -19,7 +19,7 @@ def setup(): # Stuff that should be run once.
 
     if retrieve.get_image_count() == 0:
         some_data = open('imageapp/dice.png', 'rb').read()
-        image.add_image(some_data, 'png')
+        image.add_image(some_data, 'png', 'Dice', 'Some dice!')
     
 def teardown(): # Stuff that should be run once.
     pass

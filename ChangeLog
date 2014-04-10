@@ -152,3 +152,14 @@
    the root.py module where the a thumbnail image is returned. Instead of
    having the html image tag have a width and height, Pillow is used to
    manipulate the image before the data is returned.
+
+ * SECOND PROJECT (5 Points):
+
+ * Add image "metadata" uploading, storage, and retrieval. (Added
+   Name/Description) Metadata only displays for index page and latest image
+   page, not the image list.
+
+ * First had to fix SQL table/inserts/retrievals. Then updated the image
+   function parameters followed by the index, image, and upload templates. The
+   name and description are uploaded in the form and displayed using the
+   dictionary passed to the jinja render function.
