@@ -1,5 +1,8 @@
+import os
 import quixote
 from quixote.directory import Directory, export, subdir
+from PIL import Image
+from io import BytesIO
 
 from . import html, image
 
@@ -48,13 +51,38 @@ class RootDirectory(Directory):
         request = quixote.get_request()
         index = request.form['special']
 
+        # If latest image, then no need for thumbnail.
         if(index == 'latest'):
             img = image.get_latest_image()
+            response.set_content_type('image/{0}'.format(img[1]))
+            return img[0]
+        # Otherwise must be list of thumbnail images.
         else:
             img = image.get_image(int(index))
+            response.set_content_type('image/{0}'.format(img[1]))
 
-        response.set_content_type('image/{0}'.format(img[1]))
-        return img[0]
+            # Temporary file used for Pillow.
+            tmpFilePath = 'Temp.{0}'.format(img[1])
+
+            # Create temp image.
+            tmp = open(tmpFilePath, 'wb')
+            tmp.write(img[0])
+            tmp.close()
+
+            # Make temp image a thumbnail.
+            pilImg = Image.open(tmpFilePath)
+            pilImg.thumbnail((250,250))
+            pilImg.save(tmpFilePath)
+
+            # Open temp image again to get image data.
+            tmp = open(tmpFilePath, 'rb')
+            data = tmp.read()
+            tmp.close()
+
+            # Remove temp image since we have data now.
+            os.remove(tmpFilePath)
+            return data
+
 
     @export(name='image_list')
     def image_list(self):

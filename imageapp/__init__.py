@@ -5,6 +5,7 @@ import retrieve
 from quixote.publish import Publisher
 from .root import RootDirectory
 from . import html, image
+from PIL import Image
 
 def create_publisher():
      p = Publisher(RootDirectory(), display_exceptions='plain')

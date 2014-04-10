@@ -140,3 +140,15 @@
 
  * Stores images in SQL database now. (The app automatically detects if the
    image table already exists so there is no special first time instructions.
+ 
+ * Implemented two projects.
+
+ * FIRST PROJECT (5 Points):
+
+ * Make a thumbnail list using server-side resizing. (Used Pillow)
+
+ * First you must install Pillow using "Pip Install Pillow". Also make sure
+   that decoder libraries are installed. (Like libjpeg) The changes are under
+   the root.py module where the a thumbnail image is returned. Instead of
+   having the html image tag have a width and height, Pillow is used to
+   manipulate the image before the data is returned.
