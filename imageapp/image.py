@@ -1,22 +1,15 @@
-# image handling API
+import create
+import insert
+import retrieve
 
-images = {}
-
-def add_image(data, imagetype):
-    if images:
-        image_num = max(images.keys()) + 1
-    else:
-        image_num = 0
-        
-    images[image_num] = [data, imagetype]
-    return image_num
+def add_image(data, imagetype, name, descrip):
+    insert.insert_image(data, imagetype, name, descrip)
 
 def get_image(num):
-    return images[num]
+    return retrieve.get_image(num)
 
 def get_latest_image():
-    image_num = max(images.keys())
-    return images[image_num]
+    return retrieve.get_latest_image()
 
 def get_image_count():
-    return len(images)
+    return retrieve.get_image_count()

@@ -1,21 +1,25 @@
 # __init__.py is the top level file in a Python package.
 
+import create
+import retrieve
 from quixote.publish import Publisher
-
-# this imports the class RootDirectory from the file 'root.py'
 from .root import RootDirectory
 from . import html, image
+from PIL import Image
 
 def create_publisher():
      p = Publisher(RootDirectory(), display_exceptions='plain')
      p.is_thread_safe = True
      return p
  
-def setup():                            # stuff that should be run once.
+def setup(): # Stuff that should be run once.
     html.init_templates()
 
-    some_data = open('imageapp/dice.png', 'rb').read()
-    image.add_image(some_data, 'png')
+    create.create_image_table() # Ensures image table exists.
+
+    if retrieve.get_image_count() == 0:
+        some_data = open('imageapp/dice.png', 'rb').read()
+        image.add_image(some_data, 'png', 'Dice', 'Some dice!')
     
-def teardown():                         # stuff that should be run once.
+def teardown(): # Stuff that should be run once.
     pass

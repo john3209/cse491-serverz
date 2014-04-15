@@ -9,6 +9,7 @@ import imageapp
 import argparse
 import quotes
 import chat
+import cookieapp
 
 from app import make_app
 from quixote.demo.altdemo import create_publisher
@@ -20,7 +21,7 @@ def main():
     # Parses arguements.
     parser = argparse.ArgumentParser()
     parser.add_argument('-A',
-                        choices=['image','altdemo','myapp','quotes','chat'],
+                        choices=['image','altdemo','myapp','quotes','chat','cookie'],
                         default='myapp', help='application to run')
     parser.add_argument('-p', help="port to use", type=int)
     args = parser.parse_args()
@@ -46,6 +47,8 @@ def main():
         wsgi_app = quotes.setup()
     elif args.A == "chat":
         wsgi_app = chat.setup()
+    elif args.A == "cookie":
+        wsgi_app = cookieapp.wsgi_app
     else:
         wsgi_app = make_app()
 
