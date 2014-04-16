@@ -91,3 +91,25 @@ class RootDirectory(Directory):
     @export(name='image_list')
     def image_list(self):
         return html.render('image_list.html', {'imageCount' : image.get_image_count()})
+
+    @export(name='image_search')
+    def image_search(self):
+        return html.render('image_search.html')
+
+    @export(name='image_results')
+    def image_results(self):
+        request = quixote.get_request()
+        name = request.form['name']
+        descrip = request.form['description']
+
+        return html.render('image_results.html', {'images' : image.get_images_by_metadata(name, descrip)})
+
+    @export(name='image_raw_id')
+    def image_raw_id(self):
+        response = quixote.get_response()
+        request = quixote.get_request()
+        imageId = request.form['id']
+
+        img = image.get_image_by_id(imageId)
+        response.set_content_type('image/{0}'.format(img[1]))
+        return img[0]

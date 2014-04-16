@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+Here are images that matched your search criteria:
+<p>
+<ul>
+    {% for image in images %}
+    <li type="none">
+        <p>Name: {{ image.name }}</p>
+        <p>Description: {{ image.descrip }}</p>
+        <img width="40%" style="margin-bottom:25px" src='image_raw_id?id={{ image.i }}'/>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
