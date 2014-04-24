@@ -48,3 +48,29 @@ def get_image_count():
 
     return imageCount[0]
 
+
+def get_images(name, descrip):
+    # Connect to database.
+    db = sqlite3.connect('images.sqlite')
+
+    # Get query handle and execute query.
+    c = db.cursor()
+    c.execute('SELECT i, name, descrip FROM image_store WHERE name LIKE \'%{0}%\' AND descrip LIKE \'%{1}%\''.format(name, descrip))
+
+    return [dict(i=row[0],name=row[1],descrip=row[2]) for row in c.fetchall()]
+
+def get_image_from_id(imageId):
+    # Connect to database.
+    db = sqlite3.connect('images.sqlite')
+
+    # Configure to retrieve bytes, not text.
+    db.text_factory = bytes
+
+    # Get query handle and execute query.
+    c = db.cursor()
+    c.execute('SELECT image, imageType FROM image_store WHERE i={0}'.format(imageId))
+
+    # Grab first result.
+    image, imageType = c.fetchone()
+
+    return (image, imageType)

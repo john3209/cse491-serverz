@@ -163,3 +163,26 @@
    function parameters followed by the index, image, and upload templates. The
    name and description are uploaded in the form and displayed using the
    dictionary passed to the jinja render function.
+
+2014-04-15 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 12 had us do. This includes:
+
+ * Implemented two projects.
+
+ * FIRST PROJECT (5 Points):
+
+ * Add image metadata search.
+
+ * This included two new html files (jinja2 templates), one of which took
+   the image results information and looped through it. The new Sql command
+   searches for the metadata using the "like" operator. The metadata is
+   displayed with the images that match the user's criteria as well.
+ 
+ * SECOND PROJECT (5 Points):
+
+ * Make a generally useful fake data set for others to use in testing their
+   own server.
+
+ * The data set contains 10 images in the database "images.sqlite". This is
+   the default database used so no special set-up is needed.
