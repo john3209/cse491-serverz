@@ -1,39 +1,32 @@
 import sqlite3
 import sys
 
-def get_latest_image():
+def image_exists(imageId):
     # Connect to database.
     db = sqlite3.connect('images.sqlite')
 
-    # Configure to retrieve bytes, not text.
-    db.text_factory = bytes
-
     # Get query handle and execute query.
     c = db.cursor()
-    c.execute('SELECT image, imageType, name, descrip FROM image_store ORDER BY i DESC LIMIT 1')
+    c.execute('SELECT i FROM image_store WHERE i={0}'.format(imageId))
 
-    # Grab the first result (this will fail if no results!).
-    image, imageType, name, descrip = c.fetchone()
+    # Determines if there are any rows.
+    if(c.fetchone()):
+        return True
+    else:
+        return False
 
-    return (image, imageType, name, descrip)
-
-
-def get_image(index):
+def get_latest_image_id():
     # Connect to database.
     db = sqlite3.connect('images.sqlite')
 
-    # Configure to retrieve bytes, not text.
-    db.text_factory = bytes
-
     # Get query handle and execute query.
     c = db.cursor()
-    c.execute('SELECT image, imageType, name, descrip FROM (SELECT * FROM image_store ORDER BY i DESC LIMIT {0}) reverse ORDER BY i ASC'.format(index + 1))
+    c.execute('SELECT i FROM image_store ORDER BY i DESC LIMIT 1')
 
     # Grab the first result (this will fail if no results!).
-    image, imageType, name, descrip = c.fetchone()
+    i = c.fetchone()[0]
 
-    return (image, imageType, name, descrip)
-
+    return i
 
 def get_image_count():
     # Connect to database.
@@ -47,7 +40,6 @@ def get_image_count():
     imageCount = c.fetchone()
 
     return imageCount[0]
-
 
 def get_images(name, descrip):
     # Connect to database.
@@ -68,9 +60,13 @@ def get_image_from_id(imageId):
 
     # Get query handle and execute query.
     c = db.cursor()
-    c.execute('SELECT image, imageType FROM image_store WHERE i={0}'.format(imageId))
+    c.execute('SELECT i, image, imageType, name, descrip FROM image_store WHERE i={0}'.format(imageId))
 
     # Grab first result.
-    image, imageType = c.fetchone()
+    i, image, imageType, name, descrip = c.fetchone()
 
-    return (image, imageType)
+    # Get comments for the image.
+    c.execute('SELECT comment FROM image_comment WHERE imageId = {0}'.format(i))
+    comments = [row[0] for row in c.fetchall()]
+
+    return (image, imageType, name, descrip, comments, i)

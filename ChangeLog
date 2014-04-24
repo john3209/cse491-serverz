@@ -186,3 +186,28 @@
 
  * The data set contains 10 images in the database "images.sqlite". This is
    the default database used so no special set-up is needed.
+
+2014-04-24 Jeff Johnson <john3209@msu.edu>
+
+ * Made changes Homework 13 had us do. This includes:
+
+ * Implemented two projects.
+
+ * FIRST PROJECT (5 Points):
+
+ * Write a URL handler so that each image is referred to by its number.
+
+ * For this I just made a parameter for the image page (path). For example, if
+   I want to view the image with ID 6, I would just enter the normal URL
+   followed by /image?id=6. If an id is selected that doesn't exist or no id
+   is specified at all, the latest image is displayed. The "Show Most Recent
+   Image" link redirects to this page as well.
+
+ * SECOND PROJECT (5 Points):
+
+ * Add the ability to comment on images.
+
+ * For this I added a table that links image ID to the comment made. So in
+   order to get comments for an image, only it's ID is needed. The only place 
+   you can add comments is under image page for the selected image. However,
+   the comments are visible on both that same page as well as the index page.

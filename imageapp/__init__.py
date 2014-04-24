@@ -15,7 +15,7 @@ def create_publisher():
 def setup(): # Stuff that should be run once.
     html.init_templates()
 
-    create.create_image_table() # Ensures image table exists.
+    create.create_tables() # Ensures tables exist.
 
     if retrieve.get_image_count() == 0:
         some_data = open('imageapp/dice.png', 'rb').read()

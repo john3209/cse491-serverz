@@ -11,8 +11,9 @@ class RootDirectory(Directory):
 
     @export(name='') # This makes it public.
     def index(self):
-        img = image.get_latest_image()
-        return html.render('index.html', {'name' : img[2], 'description' : img[3]})
+        imageId = image.get_latest_image_id()
+        img = image.get_image_by_id(imageId)
+        return html.render('index.html', {'name' : img[2], 'description' : img[3], 'comments' : img[4], 'id' : img[5]})
 
     @export(name='upload')
     def upload(self):
@@ -46,51 +47,64 @@ class RootDirectory(Directory):
 
     @export(name='image')
     def image(self):
-        img = image.get_latest_image()
-        return html.render('image.html', {'name' : img[2], 'description' : img[3]})
+        request = quixote.get_request()
+
+        if('id' not in request.form):
+            imageId = image.get_latest_image_id()
+        else:
+            imageId = request.form['id']
+
+        if(not image.image_exists(imageId)):
+            return quixote.redirect('./image')
+
+        img = image.get_image_by_id(imageId)
+
+        return html.render('image.html', {'name' : img[2], 'description' : img[3], 'comments' : img[4], 'id' : img[5]})
 
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
         request = quixote.get_request()
-        index = request.form['special']
+        imageId = request.form['id']
 
-        # If latest image, then no need for thumbnail.
-        if(index == 'latest'):
-            img = image.get_latest_image()
-            response.set_content_type('image/{0}'.format(img[1]))
-            return img[0]
-        # Otherwise must be list of thumbnail images.
-        else:
-            img = image.get_image(int(index))
-            response.set_content_type('image/{0}'.format(img[1]))
+        img = image.get_image_by_id(imageId)
+        response.set_content_type('image/{0}'.format(img[1]))
+        return img[0]
 
-            # Temporary file used for Pillow.
-            tmpFilePath = 'Temp.{0}'.format(img[1])
+    @export(name='image_raw_thumbnail')
+    def image_raw_thumbnail(self):
+        response = quixote.get_response()
+        request = quixote.get_request()
+        imageId = request.form['id']
 
-            # Create temp image.
-            tmp = open(tmpFilePath, 'wb')
-            tmp.write(img[0])
-            tmp.close()
+        img = image.get_image_by_id(imageId)
+        response.set_content_type('image/{0}'.format(img[1]))
 
-            # Make temp image a thumbnail.
-            pilImg = Image.open(tmpFilePath)
-            pilImg.thumbnail((250,250))
-            pilImg.save(tmpFilePath)
+        # Temporary file used for Pillow.
+        tmpFilePath = 'Temp.{0}'.format(img[1])
 
-            # Open temp image again to get image data.
-            tmp = open(tmpFilePath, 'rb')
-            data = tmp.read()
-            tmp.close()
+        # Create temp image.
+        tmp = open(tmpFilePath, 'wb')
+        tmp.write(img[0])
+        tmp.close()
 
-            # Remove temp image since we have data now.
-            os.remove(tmpFilePath)
-            return data
+        # Make temp image a thumbnail.
+        pilImg = Image.open(tmpFilePath)
+        pilImg.thumbnail((250,250))
+        pilImg.save(tmpFilePath)
 
+        # Open temp image again to get image data.
+        tmp = open(tmpFilePath, 'rb')
+        data = tmp.read()
+        tmp.close()
+
+        # Remove temp image since we have data now.
+        os.remove(tmpFilePath)
+        return data
 
     @export(name='image_list')
     def image_list(self):
-        return html.render('image_list.html', {'imageCount' : image.get_image_count()})
+        return html.render('image_list.html', {'images' : image.get_images_by_metadata("","")})
 
     @export(name='image_search')
     def image_search(self):
@@ -104,12 +118,11 @@ class RootDirectory(Directory):
 
         return html.render('image_results.html', {'images' : image.get_images_by_metadata(name, descrip)})
 
-    @export(name='image_raw_id')
-    def image_raw_id(self):
-        response = quixote.get_response()
+    @export(name='add_comment')
+    def add_comment(self):
         request = quixote.get_request()
         imageId = request.form['id']
+        comment = request.form['comment']
 
-        img = image.get_image_by_id(imageId)
-        response.set_content_type('image/{0}'.format(img[1]))
-        return img[0]
+        image.add_comment(imageId, comment)
+        return quixote.redirect('./image?id={0}'.format(imageId))

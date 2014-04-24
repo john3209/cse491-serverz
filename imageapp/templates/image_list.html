@@ -4,9 +4,11 @@
 Here is your list of images:
 <p>
 <ul>
-    {% for i in range(0,imageCount) %}
+    {% for image in images %}
     <li type="none">
-        <img style="margin-bottom:25px" src='image_raw?special={{ i }}'/>
+        <p>Name: {{ image.name }}</p>
+        <p>Description: {{ image.descrip }}</p>
+        <img style="margin-bottom:25px" src="image_raw_thumbnail?id={{ image.i }}" />
     </li>
     {% endfor %}
 </ul>

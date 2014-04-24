@@ -12,3 +12,12 @@ def insert_image(data, imageType, name, descrip):
     db.execute("INSERT INTO image_store (image,imageType,name,descrip) VALUES (?,?,?,?)",(data,imageType,name,descrip,))
     db.commit()
     db.close()
+
+def insert_comment(imageId, comment):
+    # Connects to the already existing database.
+    db = sqlite3.connect('images.sqlite')
+
+    # Insert!
+    db.execute("INSERT INTO image_comment (imageId,comment) VALUES (?,?)",(imageId,comment,))
+    db.commit()
+    db.close()
